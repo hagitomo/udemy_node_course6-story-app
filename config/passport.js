@@ -2,6 +2,10 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy
 const mongoose = require('mongoose')
 const keys = require('./keys.js')
 
+// user schema
+require('../models/users.js')
+const User = mongoose.model('user')
+
 module.exports = (passport) => {
   passport.use(
     new GoogleStrategy({
@@ -10,8 +14,43 @@ module.exports = (passport) => {
       callbackURL: '/auth/google/callback',
       proxy: true
     }, ( accessToken, refreshToken, profile, done ) => {
-      console.log(accessToken)
-      console.log(profile)
+      // console.log(accessToken)
+      // console.log(profile)
+      const image = profile.photos[0].value.substring(0, profile.photos[0].value.indexOf('?'));
+
+      const newUser = {
+        googleID: profile.id,
+        email: profile.emails[0].value,
+        firstName: profile.name.givenName,
+        lastName: profile.name.familyName,
+        image: image
+      }
+
+      // すでにDBに登録してあるかcheck
+      User.findOne({ googleID: profile.id })
+        .then(( user ) => {
+          if (user) {
+            // 登録してある場合
+            return done(null, user)
+          } else {
+            // 新規登録
+            new User(newUser)
+              .save()
+              .then( user => {
+                return done(null, user)
+              } )
+          }
+        })
     })
   )
+
+  passport.serializeUser((user, done) => {
+    done(null, user.id)
+  })
+
+  passport.deserializeUser((id, done) => {
+    User.findById(id).then((user) => {
+      done(null, user)
+    })
+  })
 }
