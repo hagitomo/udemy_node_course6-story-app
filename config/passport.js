@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const keys = require('./keys.js')
 
 // user schema
-require('../models/users.js')
+require('../models/Users.js')
 const User = mongoose.model('user')
 
 module.exports = (passport) => {
