@@ -1,0 +1,26 @@
+{
+  "name": "story-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hagitomo/udemy_node_course6-story-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hagitomo/udemy_node_course6-story-app/issues"
+  },
+  "homepage": "https://github.com/hagitomo/udemy_node_course6-story-app#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "mongoose": "^5.4.13",
+    "nodemon": "^1.18.10",
+    "passport": "^0.4.0",
+    "passport-google-oauth20": "^1.0.0"
+  }
+}
