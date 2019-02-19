@@ -16,6 +16,9 @@ app.engine('handlebars', exphbs({
 }))
 app.set('view engine', 'handlebars')
 
+// static folder
+app.use(express.static(path.join(__dirname, 'public')))
+
 // body-parser
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -56,8 +59,10 @@ require('./config/passport.js')(passport);
 
 // routing
 const index = require('./routes/index.js')
+const stories = require('./routes/stories.js')
 const auth = require('./routes/auth.js')
 app.use('/', index)
+app.use('/stories/', stories)
 app.use('/auth/', auth)
 
 // port設定
