@@ -12,10 +12,10 @@ const passport = require('passport')
 const app = express()
 
 // template
-const { truncate, stripTags, formatDate, select } = require('./helpers/hbs.js')
+const { truncate, stripTags, formatDate, select, editIcon } = require('./helpers/hbs.js')
 app.engine('handlebars', exphbs({
   helpers: {
-    truncate, stripTags, formatDate, select
+    truncate, stripTags, formatDate, select, editIcon
   },
   defaultLayout: 'main'
 }))

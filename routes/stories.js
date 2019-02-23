@@ -17,11 +17,35 @@ router.get('/', (req, res) => {
       status: 'public'
     })
     .populate('user')
+    .sort({ date: 'desc' })
     .then(stories => {
       res.render('stories/index', {
         stories
       })
     })
+})
+
+// get /stories/user/:id
+router.get('/user/:userId', (req, res) => {
+  Story.find({
+    user: req.params.userId,
+    status: 'public'
+  })
+  .populate('user')
+  .then( stories =>{
+    res.render('stories/index', {stories})
+  })
+})
+
+// get /stories/my
+router.get('/my/', ensureAuthenticated, (req, res) => {
+  Story.find({
+    user: req.user.id
+  })
+  .populate('user')
+  .then( stories =>{
+    res.render('stories/index', {stories})
+  })
 })
 
 // get /stories/add
@@ -59,8 +83,14 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
   Story.findOne({
       _id: req.params.id
     })
-    .populate('user')
     .then(story => {
+      // if ( story.user != req.user.id ) {
+      //   res.redirect('/stories/')
+      // } else {
+      //   res.render('stories/edit', {
+      //     story
+      //   })
+      // }
       res.render('stories/edit', {
         story
       })
@@ -99,10 +129,26 @@ router.get('/show/:id', (req, res) => {
       _id: req.params.id
     })
     .populate('user')
+    .populate('comments.commentUser')
     .then(story => {
-      res.render('stories/show', {
-        story
-      })
+      // publicは 閲覧可能
+      if (story.status === 'public') {
+        res.render('stories/show', {
+          story
+        })
+        return
+      }
+      // storyとuserのidが一致していれば閲覧可能
+      if (req.user) {
+        if (req.user.id == story.user._id) {
+          res.render('stories/show', {
+            story
+          })
+          return
+        }
+      }
+      // それ以外は閲覧不可
+      res.redirect('/stories')
     })
 })
 
@@ -112,6 +158,27 @@ router.delete('/:id', (req,res) => {
     .then(() => {
       res.redirect('/dashboard/')
     })
+})
+
+// comment
+router.post('/comment/:id', (req, res) => {
+  Story.findOne({
+    _id: req.params.id
+  })
+  .then((story => {
+    const newCommment = {
+      commentBody: req.body.commentBody,
+      commentUser: req.user.id
+    }
+
+    // commentsの配列に保存
+    story.comments.unshift( newCommment )
+    // DBに保存し、リダイレクト
+    story.save()
+    .then( story => {
+      res.redirect(`/stories/show/${story.id}`)
+    } )
+  }))
 })
 
 module.exports = router
