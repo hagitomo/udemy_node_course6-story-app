@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
+const methodOverride = require('method-override')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
 const session = require('express-session')
@@ -11,7 +12,11 @@ const passport = require('passport')
 const app = express()
 
 // template
+const { truncate, stripTags, formatDate, select } = require('./helpers/hbs.js')
 app.engine('handlebars', exphbs({
+  helpers: {
+    truncate, stripTags, formatDate, select
+  },
   defaultLayout: 'main'
 }))
 app.set('view engine', 'handlebars')
@@ -22,6 +27,9 @@ app.use(express.static(path.join(__dirname, 'public')))
 // body-parser
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+// method override
+app.use(methodOverride('_method'))
 
 // mongoose
 mongoose.promise = global.Promise
